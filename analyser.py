@@ -1,7 +1,7 @@
 import math
 import datetime,time
 import _config as cfg
-from sqs import send
+from sns import send
 
 class analyser(object):
 	"""docstring for analyser"""
@@ -31,12 +31,12 @@ class analyser(object):
 	def getAvg(self):
 		return self.avg
 
-	def check_alart(self, x, devMultiplier, time):
-		readable = datetime.datetime.fromtimestamp(int(time)).strftime('%Y-%m-%d %H:%M:%S')
+	def check_alart(self, x, devMultiplier, time_):
+		readable = datetime.datetime.fromtimestamp(int(time_)).strftime('%Y-%m-%d %H:%M:%S')
 		if x > self.getAvg() + devMultiplier*self.getDev():
-			send( "Symbol {}({}) exceed average {} by {} deviation at time {}, {}".format(self.symbol,x,self.avg, devMultiplier, time, readable))
+			send( "Symbol {}({}) exceed average {} by {} deviation at time {}, {}\nAccording to our prediction, next trading price will be around {}".format(self.symbol,x,self.avg, devMultiplier, time_, readable, self.apprioximate_by_time(int(time.time()))))
 		if x < self.getAvg() - devMultiplier*self.getDev():
-			send( "Symbol {}({}) below average {} by {} deviation at time {}, {}".format(self.symbol,x,self.avg, devMultiplier, time, readable))
+			send( "Symbol {}({}) below average {} by {} deviation at time {}, {}\nAccording to our prediction, next trading price will be around {}".format(self.symbol,x,self.avg, devMultiplier, time_, readable, self.apprioximate_by_time(int(time.time()))))
 
 	def apprioximate_by_time(self, time):
 		#least square approximate

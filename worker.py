@@ -5,6 +5,7 @@ import MySQLdb
 import _config as cfg
 from nasdaq import stock_quote,get_time
 from analyser import analyser
+import sys
 
 def create_tables(symbol):
 	mysql = MySQLdb.connect( host = cfg.HOST, user = cfg.USER, port = cfg.PORT, passwd = cfg.PASSWORD, db = cfg.DB )
@@ -27,9 +28,12 @@ def process(symbol,interval):
 	while time_<cfg.max_iter:
 		time_ = time_ + 1
 		res = stock_quote(symbol)
+		#print res
 		if prev_price!=res[1]:
 			#try:
 			uni_str = get_time()
+			readable = datetime.datetime.fromtimestamp(int(uni_str)).strftime('%Y-%m-%d %H:%M:%S')
+			print readable, res[1]
 			cmd_str = "INSERT INTO %s (UNICODE,PRICE) VALUES (%s,%s)" % (symbol,uni_str,res[1])
 			symbol_analyser.add(float(res[1]), uni_str)
 			cursor.execute(cmd_str)
@@ -41,4 +45,10 @@ def process(symbol,interval):
 		time.sleep(interval)
 	mysql.close()
 
-process('AAPL', 2)
+if len(sys.argv)==2:
+ 	process(sys.argv[1], 2)	
+
+# for i in range(1,len(sys.argv)):
+# 	thread.start_new_thread(process,(sys.argv[i],2,))
+
+
